@@ -1,31 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enso Swap & Bridge</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enso Swap & Bridge</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
-        <h1>$ENSO Swap & Bridge DApp</h1>
-    </header>
-    <main>
-        <div class="card">
-            <h2>Swap Tokens</h2>
-            <input type="text" id="fromToken" placeholder="From Token (e.g., ETH)">
-            <input type="text" id="toToken" placeholder="To Token (e.g., USDC)">
-            <input type="number" id="amount" placeholder="Amount">
-            <button onclick="swap()">Swap</button>
-        </div>
-        <div class="card">
-            <h2>Bridge Tokens</h2>
-            <input type="text" id="bridgeToken" placeholder="Token (e.g., ETH)">
-            <input type="text" id="network" placeholder="Network (e.g., Polygon)">
-            <input type="number" id="bridgeAmount" placeholder="Amount">
-            <button onclick="bridge()">Bridge</button>
-        </div>
-    </main>
-    <script src="app.js"></script>
+  <div class="app">
+    <h1>Swap & Bridge with Enso</h1>
+    <button id="connectWallet">🔗 Connect Wallet</button>
+    
+    <div id="walletAddress"></div>
+    
+    <h3>Swap Tokens</h3>
+    <input type="text" id="fromToken" placeholder="From Token (e.g., USDC)">
+    <input type="text" id="toToken" placeholder="To Token (e.g., ETH)">
+    <input type="number" id="amount" placeholder="Amount">
+    <button id="swapBtn">Swap Now</button>
+    
+    <div id="status"></div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
