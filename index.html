@@ -1,47 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Enso Swap & Bridge</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider/dist/umd/index.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #101010;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .container {
+      background: #1c1c1c;
+      padding: 20px;
+      border-radius: 10px;
+      width: 320px;
+      text-align: center;
+    }
+    select, input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <h2>Enso Swap & Bridge</h2>
+    <button id="connectWallet">Connect Wallet</button>
+    <p id="walletAddress"></p>
 
-  <div class="app">
-    <h1>Swap & Bridge with Enso</h1>
-    <button id="connectWallet">🔗 Connect Wallet</button>
-    
-    <div id="walletAddress"></div>
-    
-    <h3>Swap Tokens</h3>
-    <input type="text" id="fromToken" placeholder="From Token (e.g., USDC)">
-    <input type="text" id="toToken" placeholder="To Token (e.g., ETH)">
-    <input type="number" id="amount" placeholder="Amount">
-    <button id="swapBtn">Swap Now</button>
-    
-    <div id="status"></div>
+    <select id="fromToken">
+      <option value="ETH">ETH</option>
+      <option value="USDC">USDC</option>
+      <option value="DAI">DAI</option>
+    </select>
+
+    <select id="toToken">
+      <option value="DAI">DAI</option>
+      <option value="USDC">USDC</option>
+      <option value="ETH">ETH</option>
+    </select>
+
+    <input type="number" id="amount" placeholder="Amount" />
+
+    <button id="swapBtn">Swap via Enso</button>
+    <p id="status"></p>
   </div>
-  
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-  <script src="app.js"></script>
-  <script>
-  let provider;
 
-  async function connectWallet() {
-    if (window.ethereum) {
-      // MetaMask
-      provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
-      const address = await signer.getAddress();
-      alert("Connected: " + address);
-    } else {
-      alert("No wallet found! Please install MetaMask.");
-    }
-  }
-</script>
+  <script>
+    let userAddress;
+
+    // Connect Wallet
+    document.getElementById('connectWallet').addEventListener('click', async () => {
+      if (window.ethereum) {
+        try {
+          const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+          userAddress = accounts[0];
+          document.getElementById('walletAddress').innerText = 'Connected: ' + userAddress;
+        } catch (err) {
+          console.error(err);
+        }
+      } else {
+        alert('Install MetaMask!');
+      }
+    });
+
+    // Swap Function with Enso API
+    document.getElementById('swapBtn').addEventListener('click', async () => {
+      const fromToken = document.getElementById('fromToken').value;
+      const toToken = document.getElementById('toToken').value;
+      const amount = document.getElementById('amount').value;
+      const statusEl = document.getElementById('status');
+
+      if (!userAddress) {
+        alert('Connect wallet first!');
+        return;
+      }
+
+      statusEl.innerText = 'Fetching best route...';
+
+      try {
+        const response = await fetch('https://api.enso.finance/api/v1/route', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            fromToken: fromToken,
+            toToken: toToken,
+            amount: amount,
+            chainId: 1, // Ethereum mainnet
+            userAddress: userAddress,
+            slippage: 1
+          })
+        });
+
+        const data = await response.json();
+        console.log(data);
+
+        if (data && data.tx) {
+          statusEl.innerText = 'Sending transaction...';
+          await ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [data.tx]
+          });
+          statusEl.innerText = 'Swap Successful!';
+        } else {
+          statusEl.innerText = 'Failed to get route.';
+        }
+      } catch (error) {
+        console.error(error);
+        statusEl.innerText = 'Error performing swap.';
+      }
+    });
+  </script>
 </body>
 </html>
