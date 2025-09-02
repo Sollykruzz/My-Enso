@@ -1,131 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Enso Swap & Bridge</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>$ENSO Swap & Bridge</title>
   <style>
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
-      background: #101010;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-    .container {
-      background: #1c1c1c;
-      padding: 20px;
-      border-radius: 10px;
-      width: 320px;
+      background: #0d0d0d;
+      color: #fff;
       text-align: center;
     }
-    select, input, button {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      font-size: 16px;
-      border-radius: 5px;
-      border: none;
+
+    header {
+      padding: 20px;
     }
-    button {
-      background: #4CAF50;
-      color: white;
-      cursor: pointer;
+
+    header img {
+      max-width: 120px;
+    }
+
+    #enso-widget {
+      width: 100%;
+      max-width: 900px;
+      height: 600px;
+      margin: 0 auto;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #aaa;
+    }
+
+    @media (max-width: 768px) {
+      #enso-widget {
+        height: 550px;
+      }
     }
   </style>
+  <script src="https://cdn.enso.finance/widget.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h2>Enso Swap & Bridge</h2>
-    <button id="connectWallet">Connect Wallet</button>
-    <p id="walletAddress"></p>
+  <header>
+    <img src="your-logo.png" alt="$ENSO Logo">
+    <h1>$ENSO Swap & Bridge</h1>
+  </header>
 
-    <select id="fromToken">
-      <option value="ETH">ETH</option>
-      <option value="USDC">USDC</option>
-      <option value="DAI">DAI</option>
-    </select>
+  <div id="enso-widget"></div>
 
-    <select id="toToken">
-      <option value="DAI">DAI</option>
-      <option value="USDC">USDC</option>
-      <option value="ETH">ETH</option>
-    </select>
-
-    <input type="number" id="amount" placeholder="Amount" />
-
-    <button id="swapBtn">Swap via Enso</button>
-    <p id="status"></p>
-  </div>
+  <footer>
+    Powered by Enso | $ENSO DApp
+  </footer>
 
   <script>
-    let userAddress;
-
-    // Connect Wallet
-    document.getElementById('connectWallet').addEventListener('click', async () => {
-      if (window.ethereum) {
-        try {
-          const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-          userAddress = accounts[0];
-          document.getElementById('walletAddress').innerText = 'Connected: ' + userAddress;
-        } catch (err) {
-          console.error(err);
-        }
-      } else {
-        alert('Install MetaMask!');
-      }
-    });
-
-    // Swap Function with Enso API
-    document.getElementById('swapBtn').addEventListener('click', async () => {
-      const fromToken = document.getElementById('fromToken').value;
-      const toToken = document.getElementById('toToken').value;
-      const amount = document.getElementById('amount').value;
-      const statusEl = document.getElementById('status');
-
-      if (!userAddress) {
-        alert('Connect wallet first!');
-        return;
-      }
-
-      statusEl.innerText = 'Fetching best route...';
-
-      try {
-        const response = await fetch('https://api.enso.finance/api/v1/route', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            fromToken: fromToken,
-            toToken: toToken,
-            amount: amount,
-            chainId: 1, // Ethereum mainnet
-            userAddress: userAddress,
-            slippage: 1
-          })
-        });
-
-        const data = await response.json();
-        console.log(data);
-
-        if (data && data.tx) {
-          statusEl.innerText = 'Sending transaction...';
-          await ethereum.request({
-            method: 'eth_sendTransaction',
-            params: [data.tx]
-          });
-          statusEl.innerText = 'Swap Successful!';
-        } else {
-          statusEl.innerText = 'Failed to get route.';
-        }
-      } catch (error) {
-        console.error(error);
-        statusEl.innerText = 'Error performing swap.';
-      }
+    EnsoWidget.init({
+      container: '#enso-widget',
+      theme: 'dark', // Options: 'dark' or 'light'
+      partnerId: '', // Optional if you have one
+      defaultChain: 'ethereum' // You can change to polygon, arbitrum, etc.
     });
   </script>
 </body>
