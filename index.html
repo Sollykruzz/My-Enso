@@ -9,6 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider/dist/umd/index.min.js"></script>
 </head>
 <body>
+  <button onclick="connectWallet()">Connect Wallet</button>
   <div class="app">
     <h1>Swap & Bridge with Enso</h1>
     <button id="connectWallet">🔗 Connect Wallet</button>
@@ -26,5 +27,21 @@
   
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
   <script src="app.js"></script>
+  <script>
+  let provider;
+
+  async function connectWallet() {
+    if (window.ethereum) {
+      // MetaMask
+      provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+      const address = await signer.getAddress();
+      alert("Connected: " + address);
+    } else {
+      alert("No wallet found! Please install MetaMask.");
+    }
+  }
+</script>
 </body>
 </html>
